@@ -43,21 +43,43 @@ const ContactModal = () => {
     }
   }, [isOpen]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
     
-    // Simulate API call (Here we will plug in EmailJS or Formspree)
-    setTimeout(() => {
+    try {
+      const response = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          access_key: "4af1f98c-1435-4d98-a36d-c79746611597",
+          name: formData.name,
+          email: formData.email,
+          message: formData.message,
+        }),
+      });
+
+      const result = await response.json();
+      if (result.success) {
+        setStatus('success');
+        setFormData({ name: '', email: '', message: '' });
+        
+        // Auto close after success
+        setTimeout(() => {
+          onClose();
+        }, 3000);
+      } else {
+        setStatus('error');
+      }
+    } catch (error) {
+      console.error(error);
+      setStatus('error');
+    } finally {
       setIsSubmitting(false);
-      setStatus('success');
-      setFormData({ name: '', email: '', message: '' });
-      
-      // Auto close after success
-      setTimeout(() => {
-        onClose();
-      }, 3000);
-    }, 1500);
+    }
   };
 
   return (
@@ -146,6 +168,12 @@ const ContactModal = () => {
                   placeholder="Initiating contact sequence..."
                 ></textarea>
               </div>
+              
+              {status === 'error' && (
+                <div className="text-red-500 text-xs font-tech text-center mt-2">
+                  Transmission failed. Please try again or use direct email.
+                </div>
+              )}
 
               <button 
                 type="submit" 
