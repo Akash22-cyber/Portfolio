@@ -72,11 +72,11 @@ const ContactModal = () => {
           onClose();
         }, 3000);
       } else {
-        setStatus('error');
+        setStatus(`error: ${result.message || 'Unknown API Error'}`);
       }
     } catch (error) {
       console.error(error);
-      setStatus('error');
+      setStatus(`error: ${error.message || 'Network Error'}`);
     } finally {
       setIsSubmitting(false);
     }
@@ -169,9 +169,9 @@ const ContactModal = () => {
                 ></textarea>
               </div>
               
-              {status === 'error' && (
+              {status && status.startsWith('error') && (
                 <div className="text-red-500 text-xs font-tech text-center mt-2">
-                  Transmission failed. Please try again or use direct email.
+                  Transmission failed: {status.split('error: ')[1] || 'Please try again.'}
                 </div>
               )}
 
